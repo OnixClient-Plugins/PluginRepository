@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Onix Plugin Generator</title>
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="fromParent/styles.css">
+</head>
+
+<body>
+<!-- 
+    <nav class="nav-links">
+        <a href="#home" class="logo-link">
+            <img src="../assets/OnixClientLogo4K.png" alt="Onix Client Logo" class="logomain">
+        </a>
+        <a href="#home" class="nav-item">Home</a>
+        <a href="features.html" class="nav-item">Features</a>
+        <a href="#faq" class="nav-item">FAQ</a>
+        <a href="#pricing" class="nav-item">Pricing</a>
+    </nav> -->
+
+    <div class="background-blob"></div>
+
+    <div class="container">
+        <div class="header">
+            <div class="logo">
+                <img src="assets/OnixClientLogo4K.png" alt="Onix Client Logo" class="logo">
+            </div>
+            <h1>Onix Plugin Generator</h1>
+            <p>Generate a new Onix Client plugin project.</p>
+        </div>
+        <!-- <div class="progress-steps">
+            <div class="progress-line"></div>
+            <div class="progress-line-active" id="progressLine"></div>
+            
+            <div class="step">
+                <div class="step-circle active" id="step1">1</div>
+                <div class="step-title">Basic Info</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-circle" id="step2">2</div>
+                <div class="step-title">Configuration</div>
+            </div>
+            
+            <div class="step">
+                <div class="step-circle" id="step3">3</div>
+                <div class="step-title">Technical Details</div>
+            </div>
+        </div> -->
+        
+        <!-- <button class="template-button" id="saveTemplate">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+                <polyline points="17 21 17 13 7 13 7 21"/>
+                <polyline points="7 3 7 8 15 8"/>
+            </svg>
+            Save as Template
+        </button> 
+        
+        both were stupid ideas lmao
+        -->        <div class="form-container">
+            <div id="error-message" class="error"></div>
+
+            <div class="form-group banner-upload-container">
+                <label for="bannerFile">Plugin Banner</label>
+                <div class="banner-input-wrapper">
+                    <input 
+                        type="file" 
+                        id="bannerFile" 
+                        accept="image/png,image/jpeg"
+                        aria-label="Upload plugin banner"
+                        title="Upload plugin banner"
+                    >
+                    <div class="banner-preview">
+                        <img id="bannerPreview" style="display: none;" alt="Plugin banner preview">
+                        <div id="bannerPlaceholder">
+                            <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 5h16a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1z" />
+                                <path d="M8 10v4" />
+                                <path d="M12 10v4" />
+                                <path d="M16 10v4" />
+                            </svg>
+                            <span style="font-size: 12px;">Upload Banner Image</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group name-icon-group">
+                <div class="plugin-name-container">
+                    <label for="pluginName" class="required">Plugin Name</label>
+                    <input type="text" id="pluginName" placeholder="Plugin Name" required>
+                </div>
+
+                <div class="icon-upload-container">
+                    <label for="iconFile" class="sr-only">Plugin Icon</label>
+                    <div class="icon-input-wrapper">
+                        <input 
+                            type="file" 
+                            id="iconFile" 
+                            accept="image/png"
+                            aria-label="Upload plugin icon"
+                            title="Upload plugin icon"
+                        >
+                        <div class="icon-preview">
+                            <img id="iconPreview" style="display: none;" alt="Plugin icon preview">
+                            <div id="iconPlaceholder">
+                                <svg width="24" height="24" viewbox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+                                    <path d="M12 12v9" />
+                                    <path d="m16 16-4-4-4 4" />
+                                </svg>
+                                <span style="font-size: 11px;">Upload Icon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="pluginAuthor" class="required">Plugin Author</label>
+                <input type="text" id="pluginAuthor" placeholder="Your Name" required>
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description</label>
+                <textarea id="description"
+                    placeholder="My amazing plugin description that I forgot to change for some reason."
+                    rows="1"></textarea>
+            </div>
+
+                        <div class="form-group">
+                <label>Events</label>
+                <div class="dropdown-container">
+                    <div class="dropdown-content-inner">
+                        <button type="button" id="eventsDropdown" class="dropdown-button">
+                            Select Events 
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M6 9l6 6 6-6"/>
+                            </svg>
+                        </button>
+                        <div class="dropdown-content" id="eventsContent">
+                            <label class="checkbox-item">
+                                <div class="checkbox-label">
+                                    <div class="checkbox-title">
+                                        <input type="checkbox" value="OnTick"> OnTick
+                                    </div>
+                                    <span class="description">• Called every game tick</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-item">
+                                <div class="checkbox-label">
+                                    <div class="checkbox-title">
+                                        <input type="checkbox" value="OnHudRender"> OnHudRender
+                                    </div>
+                                    <span class="description">• Called when the HUD is being rendered</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-item">
+                                <div class="checkbox-label">
+                                    <div class="checkbox-title">
+                                        <input type="checkbox" value="OnWorldRender"> OnWorldRender
+                                    </div>
+                                    <span class="description">• Called when the world is being rendered</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-item">
+                                <div class="checkbox-label">
+                                    <div class="checkbox-title">
+                                        <input type="checkbox" value="OnHudRenderDirect2D"> OnHudRenderDirect2D
+                                    </div>
+                                    <span class="description">• Called when Direct2D HUD elements are being rendered</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-item">
+                                <div class="checkbox-label">
+                                    <div class="checkbox-title">
+                                        <input type="checkbox" value="OnHudInput"> OnHudInput
+                                    </div>
+                                    <span class="description">• Called when input is received in the HUD</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-item">
+                                <div class="checkbox-label">
+                                    <div class="checkbox-title">
+                                        <input type="checkbox" value="OnChatMessage"> OnChatMessage
+                                    </div>
+                                    <span class="description">• Called when a chat message is received</span>
+                                </div>
+                            </label>                                             
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="repositoryUrl">Repository URL</label>
+                <input 
+                    type="url" 
+                    id="repositoryUrl" 
+                    placeholder="https://github.com/yourusername/your-plugin"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="folderName">Folder Name</label>
+                <input type="text" id="folderName" placeholder="Folder name (defaults to sanitized plugin name)">
+            </div>
+
+            <div class="form-row three-columns">                <div class="form-group">
+                    <label for="pluginVersion" class="required">Plugin Version</label>
+                    <input type="text" id="pluginVersion" placeholder="1.0.0" required>
+                </div>                <div class="form-group">
+                    <label for="gameVersion">Game Version</label>
+                    <input type="text" id="gameVersion" placeholder="Loading...">
+                </div>
+
+                <div class="form-group">
+                    <label for="runtimeVersion" class="required">Runtime Version</label>
+                    <input type="text" id="runtimeVersion" placeholder="1" required>
+                </div>
+            </div>
+
+            <button id="generateProject">Generate Project</button>
+        </div>
+
+        <div class="footer">
+            <p>Made with ❤️ for Onix Client</p>
+            <p>By Jqms</p>
+            <div class="links">
+                <a href="#">Documentation</a>
+                <a href="#">GitHub</a>
+                <a href="#">Support</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.7.1/jszip.min.js"></script>
+    <script src="script.js"></script>
+    <script src="fromParent/script.js"></script>
+</body>
+
+</html>

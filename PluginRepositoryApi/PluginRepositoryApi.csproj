@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+	
+	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
+		<Exec Command="rmdir /Q /S $(OutDir)data\websites" IgnoreExitCode="true" />
+		<Exec Command="xcopy /S /C /I /Y Websites $(OutDir)data\websites&#xD;&#xA;" />
+	</Target>
+	
+	<ItemGroup> <FrameworkReference Include="Microsoft.AspNetCore.App" /> </ItemGroup>
+	<ItemGroup>
+	  <PackageReference Include="Swashbuckle.AspNetCore.Swagger" Version="6.9.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerGen" Version="6.9.0" />
+	  <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" Version="6.9.0" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Folder Include="DTO\Plugin\" />
+	  <Folder Include="Mappers\" />
+	</ItemGroup>
+</Project>
