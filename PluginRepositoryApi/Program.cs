@@ -60,6 +60,10 @@ var app = builder.Build();
 
 // Plugin Creator Website
 app.Use(async (context, next) => {
+    if (context.Request.Path == "/") {
+        context.Response.Redirect("/docs/latest/guide/getting-started.html");
+        return;
+    }
     if (context.Request.Path == "/PluginGenerator") {
         context.Response.Redirect("/PluginGenerator/");
         return;

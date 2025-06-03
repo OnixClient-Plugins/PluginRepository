@@ -114,8 +114,8 @@ public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
         string workingDirectory = _paths.PluginSources;
 
         try {
-            await RunGitCommandAsync("fetch", workingDirectory, cts);
-            await RunGitCommandAsync("reset --hard HEAD", workingDirectory, cts);
+            await RunGitCommandAsync("fetch origin", workingDirectory, cts);
+            await RunGitCommandAsync("reset --hard origin/HEAD", workingDirectory, cts);
             await RunGitCommandAsync("submodule update --init --force --recursive", workingDirectory, cts);
         } catch (Exception e) {
             _logger.LogError(e, "Failed to pull plugins from git.");
