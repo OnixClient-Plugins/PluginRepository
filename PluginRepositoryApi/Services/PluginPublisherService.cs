@@ -109,7 +109,7 @@ public class PluginPublisherService : IPluginPublisherService {
         for (int i = 0; i < 25; i++) {
             try {
                 if (Directory.Exists(Path.Combine(_paths.Plugins, uuid))) {
-                    Directory.Delete(uuid, true);
+                    Directory.Delete(Path.Combine(_paths.Plugins, uuid), true);
                     _publishedPluginsService.OnPluginUnpublished(uuid);
                     return;
                 }
