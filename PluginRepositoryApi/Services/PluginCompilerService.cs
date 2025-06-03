@@ -128,16 +128,18 @@ public class PluginCompilerService : IPluginCompilerService {
                 await fileStream.CopyToAsync(entryStream);
             }
 
-            string assetsFolder = Path.Combine(projectDir, "Assets");
             pluginZip.CreateEntry("Assets/");
-            foreach (string file in Directory.GetFiles(assetsFolder, "*", SearchOption.AllDirectories)) {
-                string relativePath = Path.GetRelativePath(assetsFolder, file);
-                ZipArchiveEntry entry = pluginZip.CreateEntry(Path.Combine("Assets", relativePath));
-                await using Stream entryStream = entry.Open();
-                await using FileStream fileStream = new(file, FileMode.Open, FileAccess.Read);
-                await fileStream.CopyToAsync(entryStream);
+            string assetsFolder = Path.Combine(projectDir, "Assets");
+            if (Directory.Exists(assetsFolder)) {
+                foreach (string file in Directory.GetFiles(assetsFolder, "*", SearchOption.AllDirectories)) {
+                    string relativePath = Path.GetRelativePath(assetsFolder, file);
+                    ZipArchiveEntry entry = pluginZip.CreateEntry(Path.Combine("Assets", relativePath));
+                    await using Stream entryStream = entry.Open();
+                    await using FileStream fileStream = new(file, FileMode.Open, FileAccess.Read);
+                    await fileStream.CopyToAsync(entryStream);
+                }
             }
-            
+
             var manifestEntry = pluginZip.CreateEntry("manifest.json");
             await using Stream manifestStream = manifestEntry.Open();
             await using FileStream manifestFileStream = new(Path.Combine(projectDir, "manifest.json"), FileMode.Open, FileAccess.Read);
