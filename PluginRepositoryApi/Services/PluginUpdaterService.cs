@@ -34,6 +34,22 @@ public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
         
         _pluginSourceDiscoveryService.OnSourceUpdated += OnPluginSourceUpdated;
         _pluginSourceDiscoveryService.OnSourceRemoved += OnPluginSourceRemoved;
+        InitializeGitRepository();
+    }
+    
+    private void InitializeGitRepository() {
+        if (!Directory.Exists(_paths.PluginSources)) {
+            Directory.CreateDirectory(_paths.PluginSources);
+        }
+        string gitPath = Path.Combine(_paths.PluginSources, ".git");
+        if (!Directory.Exists(gitPath)) {
+            try {
+                Directory.Delete(_paths.PluginSources, true);
+                RunGitCommandAsync($"clone --recursive https://github.com/OnixClient-Plugins/Plugins.git \"{_paths.PluginSources}\"", Path.GetDirectoryName(_paths.PluginSources)!, CancellationToken.None).Wait();
+            } catch (Exception e) {
+                _logger.LogError(e, "Failed to initialize git repository for plugins.");
+            }
+        }
     }
 
     private void OnPluginSourceRemoved(PluginSourcePaths source) {
@@ -100,7 +116,7 @@ public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
         try {
             await RunGitCommandAsync("fetch", workingDirectory, cts);
             await RunGitCommandAsync("reset --hard HEAD", workingDirectory, cts);
-            await RunGitCommandAsync("merge origin/main", workingDirectory, cts);
+            await RunGitCommandAsync("submodule update --init --force --recursive", workingDirectory, cts);
         } catch (Exception e) {
             _logger.LogError(e, "Failed to pull plugins from git.");
         }

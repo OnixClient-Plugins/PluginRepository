@@ -26,6 +26,10 @@ public class PluginSourcePaths {
     }
     
     public static PluginSourcePaths? TryReadSourcePaths(string solutionDirectory, out string? error) {
+        if (solutionDirectory.EndsWith(".git") || solutionDirectory.EndsWith(".vs") || solutionDirectory.EndsWith(".idea")) {
+            error = "Just a git, vs or idea directory, not a solution directory.";
+            return null;
+        }
         solutionDirectory = Path.GetFullPath(solutionDirectory);
         string? projectDir;
         foreach (var project in Directory.GetDirectories(solutionDirectory)) {

@@ -34,6 +34,7 @@ public class PluginSourceDiscoveryService : IPluginSourceDiscoveryService {
         Dictionary<string, PluginSourcePaths> newUuidToSource = new();
         
         foreach (string sourceDir in Directory.EnumerateDirectories(_paths.PluginSources)) {
+            if (sourceDir.EndsWith(".git") || sourceDir.EndsWith(".vs") || sourceDir.EndsWith(".idea")) continue;
             PluginSourcePaths? sourcePaths = PluginSourcePaths.TryReadSourcePaths(sourceDir, out string? pluginValidationError);
             if (sourcePaths == null) {
                 _logger.LogError("Plugin source could not be read: " + pluginValidationError);
@@ -81,6 +82,7 @@ public class PluginSourceDiscoveryService : IPluginSourceDiscoveryService {
     public event OnSourceUpdatedDelegate? OnSourceUpdated;
 
     public bool ReloadPluginSourceDirectory(string solutionDirectory) {
+        if (solutionDirectory.EndsWith(".git") || solutionDirectory.EndsWith(".vs") || solutionDirectory.EndsWith(".idea")) return false;
         _pluginSourcesLock.EnterReadLock();
         PluginSourcePaths? sourcePaths = _pluginSources.Find(x => x.SolutionDirectory == solutionDirectory); 
         _pluginSourcesLock.ExitReadLock();
