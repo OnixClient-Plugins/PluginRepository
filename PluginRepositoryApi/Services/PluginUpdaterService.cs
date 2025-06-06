@@ -69,6 +69,7 @@ public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
             await UpdatePluginsNow(stoppingToken);
         }
     }
+    
 
     public async Task<List<PluginCompilationResult>> UpdatePluginsNow(CancellationToken cts = default) {
         IsUpdating = true;
@@ -80,24 +81,26 @@ public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
         object resultsLock = new();
         List<Task> tasks = new();
         foreach (var newPlugin in _newPlugins) {
-            tasks.Add(new Task(async () => {
-                var compiledSource = await _pluginCompilerService.CompileSourceAsync(newPlugin.SolutionDirectory, newPlugin.ProjectDirectory, newPlugin.Manifest, cts);
-                lock (resultsLock) {
-                    results.Add(compiledSource);
-                }
-                if (!cts.IsCancellationRequested && compiledSource.Success) {
-                    await _pluginPublisherService.PublishPluginAsync(compiledSource);
-                }
-            }));
+            tasks.Add(CompileSinglePlugin(cts, newPlugin, resultsLock, results));
 
-            foreach (var removedPlugin in _removedPlugins) {
-                tasks.Add(_pluginPublisherService.UnpublishPluginAsync(removedPlugin.Manifest.UUID, cts));
-            }
+        }
+        foreach (var removedPlugin in _removedPlugins) {
+            tasks.Add(_pluginPublisherService.UnpublishPluginAsync(removedPlugin.Manifest.UUID, cts));
         }
         await Task.WhenAll(tasks);
         return results;
     }
-    
+
+    private async Task CompileSinglePlugin(CancellationToken cts, PluginSourcePaths newPlugin, object resultsLock, List<PluginCompilationResult> results) {
+        var compiledSource = await _pluginCompilerService.CompileSourceAsync(newPlugin.SolutionDirectory, newPlugin.ProjectDirectory, newPlugin.Manifest, cts);
+        lock (resultsLock) {
+            results.Add(compiledSource);
+        }
+        if (!cts.IsCancellationRequested && compiledSource.Success) {
+            await _pluginPublisherService.PublishPluginAsync(compiledSource);
+        }
+    }
+
     private async Task RunGitCommandAsync(string commandWithoutGit, string workingDirectory, CancellationToken cts = default) {
         ProcessStartInfo pis = new ProcessStartInfo {
             FileName = "git",
