@@ -83,8 +83,11 @@ app.UseRouting();
 app.Use(async (context, next) =>
 {
     var path = context.Request.Path.Value;
-    if (path is not null && path.StartsWith("/docs") && !Path.HasExtension(path) && !path.EndsWith("/"))
-    {
+    if (path is not null && path.StartsWith("/docs") && !Path.HasExtension(path) && !path.EndsWith("/")) {
+        if (path.Contains("please-update-the-documentation-now-because-i-have-new-changes-i-made")) {
+            await next();
+            return;
+        }
         context.Response.Redirect(path + "/");
         return;
     }

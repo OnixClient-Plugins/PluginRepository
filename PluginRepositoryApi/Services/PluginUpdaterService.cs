@@ -9,6 +9,7 @@ namespace PluginRepositoryApi.Services;
 public interface IPluginUpdaterService {
     bool IsUpdating { get; }
     Task<List<PluginCompilationResult>> UpdatePluginsNow(CancellationToken cts = default);
+    Task RunGitCommandAsync(string commandWithoutGit, string workingDirectory, CancellationToken cts = default);
 }
 
 public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
@@ -101,7 +102,7 @@ public class PluginUpdaterService : BackgroundService, IPluginUpdaterService {
         }
     }
 
-    private async Task RunGitCommandAsync(string commandWithoutGit, string workingDirectory, CancellationToken cts = default) {
+    public async Task RunGitCommandAsync(string commandWithoutGit, string workingDirectory, CancellationToken cts = default) {
         ProcessStartInfo pis = new ProcessStartInfo {
             FileName = "git",
             Arguments = commandWithoutGit,
