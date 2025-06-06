@@ -12,6 +12,7 @@ public class RuntimeDocumentationController : ControllerBase {
     private readonly ILogger<RuntimeDocumentationController> _logger;
     private readonly ApplicationDataPaths _paths;
     private readonly IOnixRuntimesService _runtimes;
+    private int _cacheTime = 1800; // 30 minutes in seconds
     public RuntimeDocumentationController(ApplicationDataPaths paths, ILogger<RuntimeDocumentationController> logger, IOnixRuntimesService runtimes) {
         _paths = paths;
         _logger = logger;
@@ -61,6 +62,7 @@ public class RuntimeDocumentationController : ControllerBase {
         }
         
         string docBytes = await System.IO.File.ReadAllTextAsync(docPath);
+        Response.Headers["Cache-Control"] = "public, max-age=" + _cacheTime + _cacheTime;
         return Content(docBytes,"text/html", new System.Text.UTF8Encoding(false));
     }
     
@@ -77,10 +79,12 @@ public class RuntimeDocumentationController : ControllerBase {
         if (IsTextFile(filePath)) {
             string fileBytes = await System.IO.File.ReadAllTextAsync(fullPath);
             string mimeType = GetMimeType(fullPath);
+            Response.Headers["Cache-Control"] = "public, max-age=" + _cacheTime;
             return Content(fileBytes, mimeType, new System.Text.UTF8Encoding(false));
         } else {
             byte[] fileBytes = await System.IO.File.ReadAllBytesAsync(fullPath);
             string mimeType = GetMimeType(fullPath);
+            Response.Headers["Cache-Control"] = "public, max-age=" + _cacheTime;
             return File(fileBytes, mimeType);
         }
     }
