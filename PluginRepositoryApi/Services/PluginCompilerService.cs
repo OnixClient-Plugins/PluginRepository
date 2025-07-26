@@ -176,16 +176,16 @@ public class PluginCompilerService : IPluginCompilerService {
             
             byte[] mainAssemblyBytes = await File.ReadAllBytesAsync(mainAssemblyPath, cts);
             string mainAssemblyHash = _pluginTrustService.ComputeHash(mainAssemblyBytes);
-
+            
+            var compilationResult = new PluginCompilationResult(compiledSuccessfully, buildLogs, mainAssemblyHash, manifest.Copy(runtimeVersion));
+            // update manifest in project dir since we built it successfully for the new runtime
+            await File.WriteAllTextAsync(Path.Combine(projectDir, "manifest.json"), JsonSerializer.Serialize(compilationResult.Manifest), cts);
+            
             byte[] pluginZip = await ZipBuiltPlugin(projectDir, manifest.UUID);
             if (pluginZip.Length == 0) {
                 _logger.LogError("(4) Failed to compile plugin {pluginName} in {solutionDir}, failed to zip plugin", manifest.Name, solutionDir);
                 return new PluginCompilationResult(false, $"{buildLogs}\n\nFailed to zip plugin") {Manifest = manifest};
             }
-
-            var compilationResult = new PluginCompilationResult(compiledSuccessfully, buildLogs, mainAssemblyHash, manifest.Copy(runtimeVersion));
-            // update manifest in project dir since we built it successfully for the new runtime
-            await File.WriteAllTextAsync(Path.Combine(projectDir, "manifest.json"), JsonSerializer.Serialize(compilationResult.Manifest), cts);
             
             compilationResult.ZippedPlugin = pluginZip;
             compilationResult.IconPath = Path.Combine(projectDir, "Assets", "PluginIcon.png");
