@@ -488,7 +488,7 @@ namespace ${name} {
 
         protected override void OnLoaded() {
             Console.WriteLine($"Plugin {CurrentPluginManifest.Name} loaded!");
-            Config = new ${name}Config(PluginDisplayModule);${registerSection}
+            Config = new ${name}Config(PluginDisplayModule, true);${registerSection}
         }
 
         protected override void OnEnabled() {
