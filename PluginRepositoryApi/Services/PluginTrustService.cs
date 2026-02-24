@@ -20,7 +20,7 @@ public class PluginTrustService : IPluginTrustService {
     private readonly HashSet<string> _trustedPluginUuids;
     private readonly ReaderWriterLockSlim _trustedPluginHashesLock = new();
     private readonly ApplicationDataPaths _paths;
-    private readonly Mutex _fileAccessLock = new();
+    private readonly SemaphoreSlim _fileAccessLock = new(1, 1);
     
     public PluginTrustService(ApplicationDataPaths paths) {
         _paths = paths;
@@ -103,7 +103,7 @@ public class PluginTrustService : IPluginTrustService {
         }
         _trustedPluginHashesLock.ExitWriteLock();
 
-        _fileAccessLock.WaitOne();
+        await _fileAccessLock.WaitAsync();
         try {
             await File.AppendAllTextAsync(Path.Combine(_paths.Data, "trusted_plugins_uuids.txt"), uuid + Environment.NewLine);
         }
@@ -114,7 +114,7 @@ public class PluginTrustService : IPluginTrustService {
             return false;
         }
         finally {
-            _fileAccessLock.ReleaseMutex();
+            _fileAccessLock.Release();
         }
         return true;
     }
@@ -127,7 +127,7 @@ public class PluginTrustService : IPluginTrustService {
         }
         _trustedPluginHashesLock.ExitWriteLock();
 
-        _fileAccessLock.WaitOne();
+        await _fileAccessLock.WaitAsync();
         try {
             await File.AppendAllTextAsync(Path.Combine(_paths.Data, "trusted_plugins_uuids.txt"), uuid + Environment.NewLine);
         }
@@ -139,7 +139,7 @@ public class PluginTrustService : IPluginTrustService {
             return false;
         }
         finally {
-            _fileAccessLock.ReleaseMutex();
+            _fileAccessLock.Release();
         }
         return true;
     }
@@ -150,23 +150,22 @@ public class PluginTrustService : IPluginTrustService {
             _trustedPluginHashesLock.ExitWriteLock();
             return false;
         }
+        var snapshot = _trustedPluginUuids.ToList();
         _trustedPluginHashesLock.ExitWriteLock();
 
-        _trustedPluginHashesLock.EnterWriteLock();
         try {
-            if (await SaveTrustedPluginUuids()) {
+            if (await SaveTrustedPluginUuids(snapshot)) {
+                _trustedPluginHashesLock.EnterWriteLock();
                 _trustedPluginHashes.Clear();
+                _trustedPluginHashesLock.ExitWriteLock();
                 return true;
             }
+        }
+        catch (Exception) { }
 
-            _trustedPluginUuids.Add(uuid);
-        }
-        catch (Exception) {
-            _trustedPluginUuids.Add(uuid);
-        }
-        finally {
-            _trustedPluginHashesLock.ExitWriteLock();
-        }
+        _trustedPluginHashesLock.EnterWriteLock();
+        _trustedPluginUuids.Add(uuid);
+        _trustedPluginHashesLock.ExitWriteLock();
         return false;
     }
 
@@ -183,28 +182,28 @@ public class PluginTrustService : IPluginTrustService {
             return new HashSet<string>();
         }
 
-        _fileAccessLock.WaitOne();
+        await _fileAccessLock.WaitAsync();
         try {
             var lines = await File.ReadAllLinesAsync(path);
             return new HashSet<string>(lines.Where(x => !string.IsNullOrWhiteSpace(x)));
         }
         catch (Exception) { }
         finally {
-            _fileAccessLock.ReleaseMutex();
+            _fileAccessLock.Release();
         }
         return new HashSet<string>();
     }
     
-    private async Task<bool> SaveTrustedPluginUuids() {
+    private async Task<bool> SaveTrustedPluginUuids(List<string> snapshot) {
+        await _fileAccessLock.WaitAsync();
         try {
-            _fileAccessLock.WaitOne();
-            await File.WriteAllLinesAsync(Path.Combine(_paths.Data, "trusted_plugins_uuids.txt"), TrustedPluginUuids);
+            await File.WriteAllLinesAsync(Path.Combine(_paths.Data, "trusted_plugins_uuids.txt"), snapshot);
         }
         catch (Exception) {
             return false;
         }
         finally {
-            _fileAccessLock.ReleaseMutex();
+            _fileAccessLock.Release();
         }
 
         return true;
