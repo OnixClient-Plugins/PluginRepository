@@ -60,7 +60,7 @@ public class PluginCompilerService : IPluginCompilerService {
             
             ProcessStartInfo startInfo = new() {
                 FileName = "dotnet",
-                Arguments = "build -c Release",
+                Arguments = "build -c Release --restore",
                 WorkingDirectory = solutionDir,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
